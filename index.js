@@ -3,44 +3,17 @@
 import helper from "@node-rs/helper";
 import { join } from "path";
 import { Blob } from "buffer";
-import { createRequire } from "module";
 import { fileURLToPath } from "url";
 
-const require = createRequire(import.meta.url);
 const __dirname = fileURLToPath(new URL(".", import.meta.url));
 const { loadBinding } = helper;
 
 let binding;
 try {
-  // 首先尝试加载预编译的二进制文件
+  // 加载通过 postinstall 构建的二进制文件
   binding = loadBinding(__dirname, "screenshot-rs", "screenshot_rs");
 } catch (e) {
-  // 尝试加载特定平台的预编译文件
-  const platform = process.platform;
-  const arch = process.arch;
-  
-  let platformName;
-  let archName;
-  
-  if (platform === 'darwin') {
-    platformName = 'darwin';
-    archName = arch === 'arm64' ? 'arm64' : 'x64';
-  } else if (platform === 'linux') {
-    platformName = 'linux';
-    archName = arch === 'arm64' ? 'arm64' : 'x64';
-  } else if (platform === 'win32') {
-    platformName = 'win32';
-    archName = 'x64';
-  } else {
-    throw new Error(`Unsupported platform: ${platform}`);
-  }
-  
-  const nodeFileName = `screenshot_rs.${platformName}-${archName}.node`;
-  try {
-    binding = require(join(__dirname, nodeFileName));
-  } catch (platformError) {
-    throw new Error(`Failed to load screenshot-rs native module for ${platform}-${arch}. Tried: ${e.message}, ${platformError.message}. Please ensure you have the correct binary for your platform.`);
-  }
+  throw new Error(`Failed to load screenshot-rs native module: ${e.message}. Please run 'npm install' to build the native module.`);
 }
 
 async function captureScreenshot() {

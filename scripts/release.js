@@ -65,16 +65,16 @@ function main() {
   // Update version
   const newVersion = updateVersion(versionType);
   
-  // Build for all platforms
-  console.log('🔨 Building for all platforms...');
-  runCommand('npm run build:all');
+  // No need to build for all platforms anymore - postinstall will handle it
+  console.log('📦 Package is ready for distribution - postinstall will build native modules');
   
   // Create git tag and push
   console.log('🏷️  Creating git tag...');
   createGitTag(newVersion);
   
   console.log(`✅ Release ${newVersion} is ready!`);
-  console.log('📦 The GitHub Action will automatically publish to npm when the tag is pushed.');
+  console.log('📦 Package will be published to npm when the tag is pushed.');
+  console.log('🔨 Native modules will be built during installation via postinstall script.');
 }
 
 main(); 

@@ -9,6 +9,12 @@ yarn-error.log*
 target/
 dist/
 build/
+# Keep source files but ignore build artifacts
+!src/
+!Cargo.toml
+!Cargo.lock
+!build.rs
+!napi.json
 
 # IDE
 .vscode/

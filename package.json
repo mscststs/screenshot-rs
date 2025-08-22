@@ -1,6 +1,6 @@
 {
   "name": "@mscststs/screenshot-rs",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Rust-based screen capture N-API addon returning Blob (PNG)",
   "type": "module",
   "main": "index.js",
@@ -12,8 +12,7 @@
   "scripts": {
     "build": "napi build --release",
     "build:debug": "napi build",
-    "build:all": "napi build --release --platform --all",
-    "prepublishOnly": "npm run build:all",
+    "postinstall": "node scripts/postinstall.js",
     "release:patch": "node scripts/release.js patch",
     "release:minor": "node scripts/release.js minor",
     "release:major": "node scripts/release.js major"
@@ -34,21 +33,17 @@
       "aarch64-unknown-linux-gnu"
     ]
   },
-  "binary": {
-    "napi_versions": [4],
-    "targets": [
-      "x86_64-apple-darwin",
-      "aarch64-apple-darwin", 
-      "x86_64-pc-windows-msvc",
-      "x86_64-unknown-linux-gnu",
-      "aarch64-unknown-linux-gnu"
-    ]
-  },
   "files": [
     "index.js",
     "index.d.ts",
     "README.md",
-    "screenshot_rs.*.node"
+    "INSTALL.md",
+    "Cargo.toml",
+    "Cargo.lock",
+    "build.rs",
+    "napi.json",
+    "src/",
+    "scripts/"
   ],
   "keywords": [
     "screenshot",

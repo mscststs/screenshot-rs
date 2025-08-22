@@ -8,18 +8,21 @@ Rust-based screen capture exposed to Node via N-API. Provides a single async API
 npm install screenshot-rs
 ```
 
-**Note**: This package includes pre-compiled binaries for the following platforms:
+**Note**: This package compiles the native module during installation. You need:
 
-- macOS (x64, arm64)
-- Windows (x64)
-- Linux (x64, arm64)
+- Rust toolchain (install from https://rustup.rs/)
+- napi-rs CLI: `npm install -g @napi-rs/cli`
 
-No compilation required on supported platforms!
+The package will automatically build the native module for your platform during `npm install`.
 
-## Prerequisites
+### Prerequisites
 
 - Node.js >= 16.17
+- Rust toolchain (https://rustup.rs/)
+- napi-rs CLI (`npm install -g @napi-rs/cli`)
 - macOS, Windows, or Linux with display access
+
+## Development Setup
 
 ## Development Setup
 
@@ -46,6 +49,15 @@ npm run build:all
 ```
 
 This builds binaries for all supported platforms.
+
+### Troubleshooting
+
+If you encounter build issues:
+
+1. Ensure Rust is installed: `rustc --version`
+2. Ensure napi-rs CLI is installed: `napi --version`
+3. Try running `npm install` again
+4. Check that you have the necessary system dependencies for your platform
 
 ## Usage
 

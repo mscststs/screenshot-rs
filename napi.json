@@ -14,5 +14,8 @@
   "packageManager": "npm",
   "binary": {
     "name": "screenshot_rs"
+  },
+  "build": {
+    "release": true
   }
 } 
