@@ -91,7 +91,16 @@ jobs:
         run: |
           mkdir -p npm
           cp index.js index.d.ts README.md package.json npm/
-          cp artifacts/*.node npm/
+
+          # Copy .node files from artifact directories
+          for artifact_dir in artifacts/*/; do
+            if [ -d "$artifact_dir" ]; then
+              # Extract the target name from the directory name
+              target_name=$(basename "$artifact_dir")
+              # Copy the .node file and rename it to match the target
+              cp "$artifact_dir"/*.node "npm/$target_name.node"
+            fi
+          done
 
           # Update package.json for npm publish
           cd npm
