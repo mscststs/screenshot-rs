@@ -102,6 +102,11 @@ jobs:
         shell: bash
       - name: Install dependencies
         run: yarn install
+      - name: Install system dependencies (Linux)
+        if: matrix.settings.host == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libxcb1-dev libxcb-shm0-dev libxcb-xfixes0-dev libxcb-render0-dev libxcb-shape0-dev libxcb-keysyms1-dev libxcb-icccm4-dev libxcb-image0-dev libxcb-randr0-dev libxcb-render-util0-dev libxcb-xinerama0-dev libxcb-xkb-dev libxkbcommon-dev libxkbcommon-x11-dev libdbus-1-dev
       - name: Build
         run: ${{ matrix.settings.build }}
         shell: bash
