@@ -9,8 +9,8 @@ version = "0.1.0"
 crate-type = ["cdylib"]
 
 [dependencies]
-napi = { version = "2", features = ["napi4"] }
-napi-derive = "2"
+napi = { version = "3", features = ["napi4"] }
+napi-derive = "3"
 screenshots = "0.8"
 image = { version = "0.24", default-features = false, features = ["png"] }
 

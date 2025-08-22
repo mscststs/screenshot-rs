@@ -1,5 +1,4 @@
 use napi::bindgen_prelude::*;
-use napi::JsBuffer;
 use napi_derive::napi;
 
 use image::codecs::png::PngEncoder;
@@ -23,54 +22,81 @@ fn has_screen_capture_permission() -> bool {
   true
 }
 
-#[derive(Default)]
-pub struct CaptureTask;
+// 通用的屏幕截图任务结构体
+pub struct CaptureTask {
+  screen_id: Option<u32>,
+}
+
+impl CaptureTask {
+  pub fn new(screen_id: Option<u32>) -> Self {
+    Self { screen_id }
+  }
+}
+
+impl Default for CaptureTask {
+  fn default() -> Self {
+    Self::new(None)
+  }
+}
 
 #[napi]
 impl Task for CaptureTask {
   type Output = Vec<u8>;
-  type JsValue = JsBuffer;
+  type JsValue = Buffer;
 
   fn compute(&mut self) -> Result<Self::Output> {
-    if !has_screen_capture_permission() {
-      return Err(Error::from_reason(
-				"Screen recording permission not granted. Enable it in System Settings > Privacy & Security > Screen Recording.".to_string(),
-			));
-    }
+    capture_screen_internal(self.screen_id)
+  }
 
-    let screens =
-      Screen::all().map_err(|e| Error::from_reason(format!("Failed to enumerate screens: {e}")))?;
-    let screen = screens
+  fn resolve(&mut self, _env: Env, output: Self::Output) -> Result<Self::JsValue> {
+    Ok(Buffer::from(output))
+  }
+}
+
+// 内部共用的截图逻辑
+fn capture_screen_internal(screen_id: Option<u32>) -> Result<Vec<u8>> {
+  if !has_screen_capture_permission() {
+    return Err(Error::from_reason(
+      "Screen recording permission not granted. Enable it in System Settings > Privacy & Security > Screen Recording.".to_string(),
+    ));
+  }
+
+  let screens =
+    Screen::all().map_err(|e| Error::from_reason(format!("Failed to enumerate screens: {e}")))?;
+  
+  let screen = match screen_id {
+    Some(id) => screens
+      .into_iter()
+      .find(|s| s.display_info.id == id)
+      .ok_or_else(|| Error::from_reason("Screen not found".to_string()))?,
+    None => screens
       .get(0)
-      .ok_or_else(|| Error::from_reason("No screens found".to_string()))?;
-    let image = screen
-      .capture()
-      .map_err(|e| Error::from_reason(format!("Failed to capture screen: {e}")))?;
+      .ok_or_else(|| Error::from_reason("No screens found".to_string()))?
+      .clone(),
+  };
 
-    let width: u32 = image.width();
-    let height: u32 = image.height();
-    let rgba: Vec<u8> = image.into_raw();
+  let image = screen
+    .capture()
+    .map_err(|e| Error::from_reason(format!("Failed to capture screen: {e}")))?;
 
-    if rgba.iter().all(|&b| b == 0) {
-      return Err(Error::from_reason(
-        "Captured image is blank. This is likely due to missing Screen Recording permission."
-          .to_string(),
-      ));
-    }
+  let width: u32 = image.width();
+  let height: u32 = image.height();
+  let rgba: Vec<u8> = image.into_raw();
 
-    let mut png_bytes: Vec<u8> = Vec::new();
-    let encoder = PngEncoder::new(&mut png_bytes);
-    encoder
-      .write_image(&rgba, width, height, ColorType::Rgba8)
-      .map_err(|e| Error::from_reason(format!("Failed to encode PNG: {e}")))?;
-
-    Ok(png_bytes)
+  if rgba.iter().all(|&b| b == 0) {
+    return Err(Error::from_reason(
+      "Captured image is blank. This is likely due to missing Screen Recording permission."
+        .to_string(),
+    ));
   }
 
-  fn resolve(&mut self, env: Env, output: Self::Output) -> Result<Self::JsValue> {
-    let buf = env.create_buffer_with_data(output)?;
-    Ok(buf.into_raw())
-  }
+  let mut png_bytes: Vec<u8> = Vec::new();
+  let encoder = PngEncoder::new(&mut png_bytes);
+  encoder
+    .write_image(&rgba, width, height, ColorType::Rgba8)
+    .map_err(|e| Error::from_reason(format!("Failed to encode PNG: {e}")))?;
+
+  Ok(png_bytes)
 }
 
 #[napi(js_name = "captureScreenshot")]
@@ -79,37 +105,8 @@ pub fn capture_screenshot() -> AsyncTask<CaptureTask> {
 }
 
 #[napi(js_name = "captureScreenshotByScreenId")]
-pub fn capture_screenshot_by_screen_id(env: Env, screen_id: u32) -> Result<JsBuffer> {
-  if !has_screen_capture_permission() {
-    return Err(Error::from_reason(
-            "Screen recording permission not granted. Enable it in System Settings > Privacy & Security > Screen Recording.".to_string(),
-        ));
-  }
-  let screens =
-    Screen::all().map_err(|e| Error::from_reason(format!("Failed to enumerate screens: {e}")))?;
-  let screen = screens
-    .into_iter()
-    .find(|s| s.display_info.id == screen_id)
-    .ok_or_else(|| Error::from_reason("Screen not found".to_string()))?;
-  let image = screen
-    .capture()
-    .map_err(|e| Error::from_reason(format!("Failed to capture screen: {e}")))?;
-  let width = image.width();
-  let height = image.height();
-  let rgba = image.into_raw();
-  if rgba.iter().all(|&b| b == 0) {
-    return Err(Error::from_reason(
-      "Captured image is blank. This is likely due to missing Screen Recording permission."
-        .to_string(),
-    ));
-  }
-  let mut png_bytes: Vec<u8> = Vec::new();
-  let encoder = PngEncoder::new(&mut png_bytes);
-  encoder
-    .write_image(&rgba, width, height, ColorType::Rgba8)
-    .map_err(|e| Error::from_reason(format!("Failed to encode PNG: {e}")))?;
-  let buf = env.create_buffer_with_data(png_bytes)?;
-  Ok(buf.into_raw())
+pub fn capture_screenshot_by_screen_id(screen_id: u32) -> AsyncTask<CaptureTask> {
+  AsyncTask::new(CaptureTask::new(Some(screen_id)))
 }
 
 #[napi(object)]
