@@ -24,7 +24,7 @@ fn has_screen_capture_permission() -> bool {
 }
 
 #[derive(Default)]
-struct CaptureTask;
+pub struct CaptureTask;
 
 #[napi]
 impl Task for CaptureTask {
@@ -58,7 +58,7 @@ impl Task for CaptureTask {
         }
 
         let mut png_bytes: Vec<u8> = Vec::new();
-        let mut encoder = PngEncoder::new(&mut png_bytes);
+        let encoder = PngEncoder::new(&mut png_bytes);
         encoder
             .write_image(&rgba, width, height, ColorType::Rgba8)
             .map_err(|e| Error::from_reason(format!("Failed to encode PNG: {e}")))?;
@@ -103,7 +103,7 @@ pub fn capture_screenshot_by_screen_id(env: Env, screen_id: u32) -> Result<JsBuf
         ));
     }
     let mut png_bytes: Vec<u8> = Vec::new();
-    let mut encoder = PngEncoder::new(&mut png_bytes);
+    let encoder = PngEncoder::new(&mut png_bytes);
     encoder
         .write_image(&rgba, width, height, ColorType::Rgba8)
         .map_err(|e| Error::from_reason(format!("Failed to encode PNG: {e}")))?;
