@@ -43,7 +43,7 @@ try {
   }
 }
 
-async function captureScreenshotBlob() {
+async function captureScreenshot() {
   const nativeFn = binding.captureScreenshot || binding.capture_screenshot;
   if (typeof nativeFn !== "function") {
     throw new Error("Native module does not export captureScreenshot/capture_screenshot");
@@ -68,4 +68,4 @@ async function captureScreenshotByScreenId(screenId) {
   return new Blob([pngBuffer], { type: "image/png" });
 }
 
-export { captureScreenshotBlob, listScreens, captureScreenshotByScreenId }; 
+export { captureScreenshot, listScreens, captureScreenshotByScreenId }; 
