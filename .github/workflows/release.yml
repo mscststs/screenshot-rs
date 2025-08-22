@@ -47,10 +47,10 @@ jobs:
           targets: ${{ matrix.target }}
 
       - name: Install dependencies
-        run: tnpm ci
+        run: npm ci
 
       - name: Build
-        run: tnpm run build
+        run: npm run build
         env:
           NAPI_TARGET_TRIPLE: ${{ matrix.target }}
 
@@ -102,6 +102,6 @@ jobs:
         run: |
           cd npm
           echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > .npmrc
-          tnpm publish --access public
+          npm publish --access public
         env:
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

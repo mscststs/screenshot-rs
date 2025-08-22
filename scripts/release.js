@@ -67,7 +67,7 @@ function main() {
   
   // Build for all platforms
   console.log('🔨 Building for all platforms...');
-  runCommand('tnpm run build:all');
+  runCommand('npm run build:all');
   
   // Create git tag and push
   console.log('🏷️  Creating git tag...');

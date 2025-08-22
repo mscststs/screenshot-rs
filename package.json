@@ -13,7 +13,7 @@
     "build": "napi build --release",
     "build:debug": "napi build",
     "build:all": "napi build --release --platform --all",
-    "prepublishOnly": "tnpm run build:all",
+    "prepublishOnly": "npm run build:all",
     "release:patch": "node scripts/release.js patch",
     "release:minor": "node scripts/release.js minor",
     "release:major": "node scripts/release.js major"

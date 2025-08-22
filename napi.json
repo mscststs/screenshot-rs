@@ -11,5 +11,5 @@
     "aarch64-unknown-linux-gnu"
   ],
   "napiVersion": 4,
-  "packageManager": "tnpm"
+  "packageManager": "npm"
 } 

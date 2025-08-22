@@ -10,23 +10,23 @@
 
    ```bash
    # 发布补丁版本 (0.1.0 -> 0.1.1)
-   tnpm run release:patch
+   npm run release:patch
 
    # 发布次要版本 (0.1.0 -> 0.2.0)
-   tnpm run release:minor
+   npm run release:minor
 
    # 发布主要版本 (0.1.0 -> 1.0.0)
-   tnpm run release:major
+   npm run release:major
    ```
 
 2. **手动发布**（如果需要）：
 
    ```bash
    # 构建所有平台
-   tnpm run build:all
+   npm run build:all
 
    # 发布到 npm
-   tnpm publish
+   npm publish
    ```
 
 ### 支持的平台

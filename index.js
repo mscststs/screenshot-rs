@@ -19,7 +19,7 @@ try {
   try {
     binding = require(join(__dirname, "screenshot_rs.node"));
   } catch (localError) {
-    throw new Error(`Failed to load screenshot-rs native module: ${e.message}. Please ensure you have the correct binary for your platform or run 'tnpm run build' to compile from source.`);
+    throw new Error(`Failed to load screenshot-rs native module: ${e.message}. Please ensure you have the correct binary for your platform or run 'npm run build' to compile from source.`);
   }
 }
 

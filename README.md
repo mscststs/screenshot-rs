@@ -5,7 +5,7 @@ Rust-based screen capture exposed to Node via N-API. Provides a single async API
 ## Installation
 
 ```bash
-tnpm install screenshot-rs
+npm install screenshot-rs
 ```
 
 **Note**: This package includes pre-compiled binaries for the following platforms:
@@ -27,14 +27,14 @@ No compilation required on supported platforms!
 
 ```bash
 cd /Users/jiangzhe/repo/github/screenshot-rs
-TNPM_REGISTRY=https://registry.npmmirror.com tnpm i
+npm install
 ```
 
 ### Build
 
 ```bash
 cd /Users/jiangzhe/repo/github/screenshot-rs
-tnpm run build
+npm run build
 ```
 
 This produces a platform-specific `.node` binary in the package directory.
@@ -42,7 +42,7 @@ This produces a platform-specific `.node` binary in the package directory.
 ### Build for all platforms
 
 ```bash
-tnpm run build:all
+npm run build:all
 ```
 
 This builds binaries for all supported platforms.

@@ -39,17 +39,17 @@ jobs:
           targets: ${{ matrix.target }}
 
       - name: Install dependencies
-        run: tnpm ci
+        run: npm ci
 
       - name: Build
-        run: tnpm run build
+        run: npm run build
         env:
           NAPI_TARGET_TRIPLE: ${{ matrix.target }}
 
       - name: Run tests (if any)
         run: |
           if [ -f "package.json" ] && grep -q '"test"' package.json; then
-            tnpm test
+            npm test
           else
             echo "No tests configured"
           fi
