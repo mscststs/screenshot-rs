@@ -17,19 +17,19 @@ jobs:
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
-            artifact_name: screenshot_rs.linux-x64.node
+            artifact_name: linux-x64
           - os: ubuntu-latest
             target: aarch64-unknown-linux-gnu
-            artifact_name: screenshot_rs.linux-arm64.node
+            artifact_name: linux-arm64
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_name: screenshot_rs.win32-x64.node
+            artifact_name: win32-x64
           - os: macos-latest
             target: x86_64-apple-darwin
-            artifact_name: screenshot_rs.darwin-x64.node
+            artifact_name: darwin-x64
           - os: macos-latest
             target: aarch64-apple-darwin
-            artifact_name: screenshot_rs.darwin-arm64.node
+            artifact_name: darwin-arm64
 
     steps:
       - name: Checkout
@@ -98,7 +98,7 @@ jobs:
               # Extract the target name from the directory name
               target_name=$(basename "$artifact_dir")
               # Copy the .node file and rename it to match the target
-              cp "$artifact_dir"/*.node "npm/$target_name.node"
+              cp "$artifact_dir"/*.node "npm/screenshot_rs.$target_name.node"
             fi
           done
 
@@ -107,7 +107,7 @@ jobs:
           node -e "
             const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
             pkg.version = process.env.GITHUB_REF.replace('refs/tags/v', '');
-            pkg.files = ['index.js', 'index.d.ts', 'README.md', '*.node'];
+            pkg.files = ['index.js', 'index.d.ts', 'README.md', 'screenshot_rs.*.node'];
             delete pkg.scripts.prepublishOnly;
             delete pkg.devDependencies;
             fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));

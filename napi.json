@@ -11,5 +11,8 @@
     "aarch64-unknown-linux-gnu"
   ],
   "napiVersion": 4,
-  "packageManager": "npm"
+  "packageManager": "npm",
+  "binary": {
+    "name": "screenshot_rs"
+  }
 } 

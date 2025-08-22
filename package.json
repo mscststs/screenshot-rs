@@ -48,7 +48,7 @@
     "index.js",
     "index.d.ts",
     "README.md",
-    "*.node"
+    "screenshot_rs.*.node"
   ],
   "keywords": [
     "screenshot",
