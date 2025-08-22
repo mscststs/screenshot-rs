@@ -15,17 +15,9 @@ rustc --version
 cargo --version
 ```
 
-### 2. Install napi-rs CLI
+### 2. Internet Connection
 
-```bash
-npm install -g @napi-rs/cli
-```
-
-Verify installation:
-
-```bash
-napi --version
-```
+Ensure you have internet connection for npx to download @napi-rs/cli during installation.
 
 ## Installation
 
@@ -52,8 +44,8 @@ The package will automatically:
 
 #### "napi-rs CLI not found"
 
-- Install with: `npm install -g @napi-rs/cli`
-- Ensure `napi` command is available
+- Ensure you have internet connection
+- The package will automatically download @napi-rs/cli via npx
 
 #### Build failures on Linux
 

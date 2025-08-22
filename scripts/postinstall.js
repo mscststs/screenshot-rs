@@ -49,37 +49,12 @@ function checkRustToolchain() {
   });
 }
 
-// 检查是否有 napi-rs CLI
-function checkNapiCli() {
+// 使用 npx 运行 napi-rs CLI
+function runNapiBuild() {
   return new Promise((resolve, reject) => {
-    const napi = spawn('napi', ['--version'], { stdio: 'pipe' });
-    let output = '';
+    console.log('Starting native module build with npx...');
     
-    napi.stdout.on('data', (data) => {
-      output += data.toString();
-    });
-    
-    napi.on('close', (code) => {
-      if (code === 0) {
-        console.log('napi-rs CLI found:', output.trim());
-        resolve(true);
-      } else {
-        reject(new Error('napi-rs CLI not found. Please install it with: npm install -g @napi-rs/cli'));
-      }
-    });
-    
-    napi.on('error', () => {
-      reject(new Error('napi-rs CLI not found. Please install it with: npm install -g @napi-rs/cli'));
-    });
-  });
-}
-
-// 构建二进制文件
-function buildNativeModule() {
-  return new Promise((resolve, reject) => {
-    console.log('Starting native module build...');
-    
-    const build = spawn('napi', ['build', '--release'], {
+    const build = spawn('npx', ['@napi-rs/cli', 'build', '--release'], {
       cwd: projectRoot,
       stdio: 'inherit'
     });
@@ -103,14 +78,13 @@ function buildNativeModule() {
 async function main() {
   try {
     await checkRustToolchain();
-    await checkNapiCli();
-    await buildNativeModule();
+    await runNapiBuild();
   } catch (error) {
     console.error('Postinstall failed:', error.message);
     console.error('');
     console.error('To fix this issue:');
     console.error('1. Install Rust: https://rustup.rs/');
-    console.error('2. Install napi-rs CLI: npm install -g @napi-rs/cli');
+    console.error('2. Ensure you have internet connection for npx to download @napi-rs/cli');
     console.error('3. Run: npm install');
     process.exit(1);
   }
