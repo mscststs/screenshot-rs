@@ -9,13 +9,12 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const projectRoot = join(__dirname, '..');
 
-// 检查是否在 CI 环境中，如果是则跳过构建
+// Skip conditions
 if (process.env.CI || process.env.SKIP_POSTINSTALL) {
   console.log('Skipping postinstall build in CI environment');
   process.exit(0);
 }
 
-// 检查是否已经存在二进制文件
 const bindingPath = join(projectRoot, 'screenshot_rs.node');
 if (existsSync(bindingPath)) {
   console.log('Native module already exists, skipping build');
@@ -24,68 +23,60 @@ if (existsSync(bindingPath)) {
 
 console.log('Building native module...');
 
-// 检查是否有 Rust 工具链
-function checkRustToolchain() {
+function run(cmd, args, options = {}) {
   return new Promise((resolve, reject) => {
-    const rustc = spawn('rustc', ['--version'], { stdio: 'pipe' });
-    let output = '';
-    
-    rustc.stdout.on('data', (data) => {
-      output += data.toString();
+    const child = spawn(cmd, args, { stdio: 'inherit', ...options });
+    child.on('close', (code) => {
+      if (code === 0) return resolve(0);
+      reject(Object.assign(new Error(`${cmd} exited with code ${code}`), { code }));
     });
-    
-    rustc.on('close', (code) => {
-      if (code === 0) {
-        console.log('Rust toolchain found:', output.trim());
-        resolve(true);
-      } else {
-        reject(new Error('Rust toolchain not found. Please install Rust from https://rustup.rs/'));
-      }
-    });
-    
-    rustc.on('error', () => {
-      reject(new Error('Rust toolchain not found. Please install Rust from https://rustup.rs/'));
-    });
+    child.on('error', (err) => reject(err));
   });
 }
 
-// 使用 npx 运行 napi-rs CLI
-function runNapiBuild() {
-  return new Promise((resolve, reject) => {
-    console.log('Starting native module build with npx...');
-    
-    const build = spawn('npx', ['@napi-rs/cli', 'build', '--release'], {
-      cwd: projectRoot,
-      stdio: 'inherit'
-    });
-    
-    build.on('close', (code) => {
-      if (code === 0) {
-        console.log('Native module built successfully!');
-        resolve();
-      } else {
-        reject(new Error(`Build failed with exit code ${code}`));
-      }
-    });
-    
-    build.on('error', (err) => {
-      reject(new Error(`Build process error: ${err.message}`));
-    });
-  });
+async function checkRustToolchain() {
+  try {
+    await run('rustc', ['--version'], { stdio: 'pipe' });
+    console.log('Rust toolchain found');
+  } catch (_) {
+    throw new Error('Rust toolchain not found. Please install Rust from https://rustup.rs/');
+  }
 }
 
-// 主函数
+async function tryLocalNapi() {
+  const localBin = join(projectRoot, 'node_modules', '.bin', process.platform === 'win32' ? 'napi.cmd' : 'napi');
+  if (existsSync(localBin)) {
+    console.log('Using local @napi-rs/cli');
+    await run(localBin, ['build', '--release'], { cwd: projectRoot });
+    return true;
+  }
+  return false;
+}
+
+async function tryNpxNapi() {
+  const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+  console.log('Falling back to npx @napi-rs/cli');
+  await run(npxCmd, ['-y', '@napi-rs/cli', 'build', '--release'], { cwd: projectRoot });
+}
+
 async function main() {
   try {
     await checkRustToolchain();
-    await runNapiBuild();
+
+    // Prefer local CLI if present (works with npm/yarn/pnpm/tnpm installing deps)
+    const usedLocal = await tryLocalNapi();
+    if (!usedLocal) {
+      await tryNpxNapi();
+    }
+
+    console.log('Native module built successfully!');
   } catch (error) {
-    console.error('Postinstall failed:', error.message);
+    console.error('Postinstall failed:', error && error.message ? error.message : String(error));
     console.error('');
     console.error('To fix this issue:');
     console.error('1. Install Rust: https://rustup.rs/');
-    console.error('2. Ensure you have internet connection for npx to download @napi-rs/cli');
-    console.error('3. Run: npm install');
+    console.error('2. Ensure internet connectivity (npx may download @napi-rs/cli)');
+    console.error('3. Re-run installation');
     process.exit(1);
   }
 }

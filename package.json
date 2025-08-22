@@ -18,10 +18,10 @@
     "release:major": "node scripts/release.js major"
   },
   "dependencies": {
-    "@node-rs/helper": "^1.5.0"
+    "@node-rs/helper": "^1.5.0",
+    "@napi-rs/cli": "^2.16.0"
   },
   "devDependencies": {
-    "@napi-rs/cli": "^2.16.0"
   },
   "napi": {
     "name": "screenshot_rs",
