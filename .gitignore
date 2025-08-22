@@ -1,0 +1,11 @@
+#rust 
+/target
+/node_modules
+/dist
+/build
+/out
+/lib
+/include
+/lib
+
+.DS_Store
