@@ -12,9 +12,15 @@ const { loadBinding } = helper;
 
 let binding;
 try {
+  // 首先尝试加载预编译的二进制文件
   binding = loadBinding(__dirname, "screenshot-rs", "screenshot_rs");
 } catch (e) {
-  binding = require(join(__dirname, "screenshot_rs.node"));
+  // 如果预编译文件不存在，尝试加载本地编译的文件
+  try {
+    binding = require(join(__dirname, "screenshot_rs.node"));
+  } catch (localError) {
+    throw new Error(`Failed to load screenshot-rs native module: ${e.message}. Please ensure you have the correct binary for your platform or run 'tnpm run build' to compile from source.`);
+  }
 }
 
 async function captureScreenshotBlob() {

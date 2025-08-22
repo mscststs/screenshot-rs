@@ -1,5 +1,5 @@
 {
-  "name": "screenshot-rs",
+  "name": "@mscststs/screenshot-rs",
   "version": "0.1.0",
   "description": "Rust-based screen capture N-API addon returning Blob (PNG)",
   "type": "module",
@@ -12,7 +12,11 @@
   "scripts": {
     "build": "napi build --release",
     "build:debug": "napi build",
-    "prepublishOnly": "tnpm run build"
+    "build:all": "napi build --release --platform --all",
+    "prepublishOnly": "tnpm run build:all",
+    "release:patch": "node scripts/release.js patch",
+    "release:minor": "node scripts/release.js minor",
+    "release:major": "node scripts/release.js major"
   },
   "dependencies": {
     "@node-rs/helper": "^1.5.0"
@@ -30,11 +34,37 @@
       "aarch64-unknown-linux-gnu"
     ]
   },
+  "binary": {
+    "napi_versions": [4],
+    "targets": [
+      "x86_64-apple-darwin",
+      "aarch64-apple-darwin", 
+      "x86_64-pc-windows-msvc",
+      "x86_64-unknown-linux-gnu",
+      "aarch64-unknown-linux-gnu"
+    ]
+  },
   "files": [
     "index.js",
     "index.d.ts",
     "README.md",
-    "*.node",
-    "npm/**"
-  ]
+    "*.node"
+  ],
+  "keywords": [
+    "screenshot",
+    "screen-capture",
+    "rust",
+    "napi",
+    "native",
+    "png",
+    "blob"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/screenshot-rs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/screenshot-rs/issues"
+  },
+  "homepage": "https://github.com/your-username/screenshot-rs#readme"
 } 

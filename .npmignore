@@ -1,0 +1,14 @@
+.github/
+.vscode/
+.idea/
+*.log
+node_modules/
+target/
+Cargo.lock
+Cargo.toml
+src/
+build.rs
+examples/
+.napiignore
+*.node
+npm/ 
