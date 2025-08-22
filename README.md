@@ -1,168 +1,85 @@
-# screenshot-rs
+# `@napi-rs/package-template`
 
-Rust-based screen capture exposed to Node via N-API. Provides a single async API that returns a PNG `Blob`.
+![https://github.com/napi-rs/package-template/actions](https://github.com/napi-rs/package-template/workflows/CI/badge.svg)
 
-## Installation
+> Template project for writing node packages with napi-rs.
 
-```bash
-npm install screenshot-rs
+# Usage
+
+1. Click **Use this template**.
+2. **Clone** your project.
+3. Run `yarn install` to install dependencies.
+4. Run `yarn napi rename -n [@your-scope/package-name] -b [binary-name]` command under the project folder to rename your package.
+
+## Install this test package
+
+```
+yarn add @napi-rs/package-template
 ```
 
-**Note**: This package compiles the native module during installation. You need:
-
-- Rust toolchain (install from https://rustup.rs/)
-
-The package will automatically build the native module for your platform during `npm install` using npx.
-
-### Prerequisites
-
-- Node.js >= 16.17
-- Rust toolchain (https://rustup.rs/)
-- macOS, Windows, or Linux with display access
-
-## Development Setup
-
-## Development Setup
-
-### Install dev deps
-
-```bash
-cd /Users/jiangzhe/repo/github/screenshot-rs
-npm install
-```
+## Ability
 
 ### Build
 
-```bash
-cd /Users/jiangzhe/repo/github/screenshot-rs
-npm run build
-```
+After `yarn build/npm run build` command, you can see `package-template.[darwin|win32|linux].node` file in project root. This is the native addon built from [lib.rs](./src/lib.rs).
 
-This produces a platform-specific `.node` binary in the package directory.
+### Test
 
-### Build for all platforms
+With [ava](https://github.com/avajs/ava), run `yarn test/npm run test` to testing native addon. You can also switch to another testing framework if you want.
 
-```bash
-npm run build:all
-```
+### CI
 
-This builds binaries for all supported platforms.
+With GitHub Actions, each commit and pull request will be built and tested automatically in [`node@20`, `@node22`] x [`macOS`, `Linux`, `Windows`] matrix. You will never be afraid of the native addon broken in these platforms.
 
-### Troubleshooting
+### Release
 
-If you encounter build issues:
+Release native package is very difficult in old days. Native packages may ask developers who use it to install `build toolchain` like `gcc/llvm`, `node-gyp` or something more.
 
-1. Ensure Rust is installed: `rustc --version`
-2. Ensure you have internet connection for npx to download @napi-rs/cli
-3. Try running `npm install` again
-4. Check that you have the necessary system dependencies for your platform
+With `GitHub actions`, we can easily prebuild a `binary` for major platforms. And with `N-API`, we should never be afraid of **ABI Compatible**.
 
-## Usage
+The other problem is how to deliver prebuild `binary` to users. Downloading it in `postinstall` script is a common way that most packages do it right now. The problem with this solution is it introduced many other packages to download binary that has not been used by `runtime codes`. The other problem is some users may not easily download the binary from `GitHub/CDN` if they are behind a private network (But in most cases, they have a private NPM mirror).
 
-### ES Modules
+In this package, we choose a better way to solve this problem. We release different `npm packages` for different platforms. And add it to `optionalDependencies` before releasing the `Major` package to npm.
 
-```js
-import {
-  captureScreenshotBlob,
-  listScreens,
-  captureScreenshotByScreenId,
-} from "screenshot-rs";
+`NPM` will choose which native package should download from `registry` automatically. You can see [npm](./npm) dir for details. And you can also run `yarn add @napi-rs/package-template` to see how it works.
 
-// Capture primary screen
-const blob = await captureScreenshotBlob();
-console.log("Got blob:", blob.type, blob.size);
+## Develop requirements
 
-// List all screens
-const screens = await listScreens();
-console.log("Available screens:", screens);
+- Install the latest `Rust`
+- Install `Node.js@10+` which fully supported `Node-API`
+- Install `yarn@1.x`
 
-// Capture specific screen
-if (screens.length > 0) {
-  const screenBlob = await captureScreenshotByScreenId(screens[0].id);
-  console.log("Screen blob:", screenBlob.type, screenBlob.size);
-}
-```
+## Test in local
 
-### CommonJS
+- yarn
+- yarn build
+- yarn test
 
-```js
-const {
-  captureScreenshotBlob,
-  listScreens,
-  captureScreenshotByScreenId,
-} = require("screenshot-rs");
-
-(async () => {
-  const blob = await captureScreenshotBlob();
-  console.log("Got blob:", blob.type, blob.size);
-})();
-```
-
-## Example: save PNG to disk
-
-See full-path example at:
-`/Users/jiangzhe/repo/github/screenshot-rs/examples/save-png.js`
-
-Run:
+And you will see:
 
 ```bash
-node /Users/jiangzhe/repo/github/screenshot-rs/examples/save-png.js
+$ ava --verbose
+
+  ✔ sync function from native code
+  ✔ sleep function from native code (201ms)
+  ─
+
+  2 tests passed
+✨  Done in 1.12s.
 ```
 
-## API
+## Release package
 
-### Functions
+Ensure you have set your **NPM_TOKEN** in the `GitHub` project setting.
 
-- `async captureScreenshotBlob(): Promise<Blob>`
+In `Settings -> Secrets`, add **NPM_TOKEN** into it.
 
-  - Captures the primary display and returns a PNG `Blob`.
+When you want to release the package:
 
-- `async listScreens(): Promise<ScreenInfo[]>`
+```
+npm version [<newversion> | major | minor | patch | premajor | preminor | prepatch | prerelease [--preid=<prerelease-id>] | from-git]
 
-  - Returns information about all available screens.
-
-- `async captureScreenshotByScreenId(screenId: number): Promise<Blob>`
-  - Captures a specific screen by ID and returns a PNG `Blob`.
-
-### Types
-
-```typescript
-interface ScreenInfo {
-  id: number;
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  rotation: number;
-  scaleFactor: number;
-  frequency: number;
-  isPrimary: boolean;
-}
+git push
 ```
 
-## Platform Support
-
-- ✅ macOS (x64, arm64)
-- ✅ Windows (x64)
-- ✅ Linux (x64, arm64)
-
-## Permissions
-
-### macOS
-
-On macOS, you may need to grant screen recording permissions:
-
-1. Go to System Preferences > Security & Privacy > Privacy > Screen Recording
-2. Add your application to the list of allowed apps
-
-### Linux
-
-On Linux, ensure your display server (X11/Wayland) is properly configured.
-
-### Windows
-
-On Windows, no additional permissions are typically required.
-
-## License
-
-MIT
+GitHub actions will do the rest job for you.
