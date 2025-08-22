@@ -63,7 +63,7 @@ fn capture_screen_internal(screen_id: Option<u32>) -> Result<Vec<u8>> {
 
   let screens =
     Screen::all().map_err(|e| Error::from_reason(format!("Failed to enumerate screens: {e}")))?;
-  
+
   let screen = match screen_id {
     Some(id) => screens
       .into_iter()
